@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="lib/bootstrap-combined.min.css"/>
+</head>
+<body>
+    <div class="container" data-ng-app="emailApp" data-ng-controller="EmailController">
+     <ul class="nav nav-tabs">
+        <li ng-class="{active: activeTab == 'inbox'}">
+            <a ng-click="activeTab='inbox'">Inbox</a>
+        </li>
+        <li ng-class="{active: activeTab == 'sent'}">
+            <a ng-click="activeTab='sent'">Sent</a>
+        </li>
+    </ul>    
+    <table ng-show="activeTab=='inbox'" class="table table-bordered table-condensed">
+        <tbody>
+            <tr ng-repeat="email in emails" ng-click="showPopup(email)">
+                <td>{{ email.from }}</td>
+                <td>{{ email.subject }}</td>
+                <td>{{ email.date }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <table ng-show="activeTab=='sent'" class="table table-bordered table-condensed">
+        <tbody>
+            <tr ng-repeat="email in sentEmails" ng-click="showPopup(email)">
+                <td>{{ email.to }}</td>
+                <td>{{ email.subject }}</td>
+                <td>{{ email.date | date:'MMM d' }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <button class="btn btn-primary" ng-click="showComposePopup()">Compose</button>
+    
+	<div ng-show="mailSent== true"> Your mail has been sent!</div>
+	
+    <div class="modal" ng-show="isPopupVisible">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="closePopup()">&times;</button>
+            <h3>{{selectedEmail.subject}}</h3>
+        </div>
+        <div class="modal-body">
+            <strong>From:</strong> {{selectedEmail.from}}<br />
+            <strong>To:</strong> {{selectedEmail.to}}<br />
+            <strong>Date:</strong> {{selectedEmail.date | date:'MMM d' }}<br />
+            <br />
+            {{selectedEmail.body}}
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="btn btn-primary" ng-click="closePopup()">Close</a>
+        </div>
+    </div>
+    
+    <div class="modal" ng-show="isComposePopupVisible">
+        <div class="modal-header">
+            <button type="button" class="close" ng-click="closeComposePopup()">&times;</button>
+            <h3>Compose Email</h3>
+        </div>
+        <div class="modal-body">
+            <form name="myForm" novalidate>
+                <input type="email" name="email" placeholder="To" style="width:95%;"
+                    ng-model="composeEmail.to" ng-pattern="emailFormat" required>
+					<div ng-show="myForm.$submitted || myForm.email.$touched">
+					  <div ng-show="myForm.email.$error.required">Please fill in mail ID</div>
+					  <span class="error" ng-show="myForm.email.$error.pattern">Not valid email!</span>
+					</div>
+                <input type="text" name="subject" placeholder="Subject" style="width:95%;"
+                    ng-model="composeEmail.subject" required=""><br />
+					<div ng-show="myForm.$submitted || myForm.subject.$touched">
+					  <div ng-show="myForm.subject.$error.required">Please fill in subject</div>
+					</div>
+                <textarea style="width:95%;" rows="10" name="text"
+                    ng-model="composeEmail.body" required></textarea>
+					<div ng-show="myForm.$submitted || myForm.text.$touched">
+					  <div ng-show="myForm.text.$error.required">Please fill in content</div>
+					</div>
+					<input type="file" filelist-bind name="files"/>
+					<input type="submit" class="btn btn-primary pull-right" ng-click="myForm.$valid && sendMail(composeEmail)" value="Send" />
+				</form>
+			
+        </div>
+	</div> 
+	</div>
+	<script src="lib/jquery.min.js"></script>
+	<script src="lib/bootstrap.min.js"></script>
+    <script src="lib/angular.min.js"></script>
+    <script src="emailController.js"></script>
+</body>
+</html>
